@@ -78,6 +78,19 @@ Uma única tabela de cadastro é usada tanto para clientes quanto para fornecedo
 
 A FK usa `restrictOnDelete()`, reforçada por uma checagem no model (`Party::booted()`) que retorna um erro 409 claro antes mesmo de chegar ao banco. Um sistema financeiro não deve apagar silenciosamente nem órfãos registros de pagamento/recebimento ao remover um cadastro.
 
+## Auditoria
+
+Toda alteração (`UPDATE`) nas tabelas `parties`, `payables`, `receivables` e `users` é registrada automaticamente em tabelas de auditoria — uma trigger a nivel de banco de dados é disparada para qualquer escrita na tabela, seja via API ou por uma query dentro do banco de dados, isso garante a integridade e coerencia de um histórico de auditoria.
+
+| tabela de log | coluna que referencia a origem | observação |
+|---|---|---|
+| `parties_log` | `party_id` | |
+| `payables_log` | `payable_id` | |
+| `receivables_log` | `receivable_id` | |
+| `users_log` | `subject_id` | não usa `user_id` para se referir a origem pra não repetir nome da coluna" |
+
+Cada tabela de _log tem `id`, `user_id` (quem fez a alteração), `data` (snapshot em JSON apenas de dados alterados) e timestamps. 
+
 ## Autenticação
 
 Sessão via Laravel Sanctum (SPA same-origin), não tokens Bearer: o frontend busca o cookie CSRF (`GET /sanctum/csrf-cookie`), autentica em `POST /login`, e as rotas `/api/*` ficam protegidas por `auth:sanctum`. Não há CORS a configurar, pois frontend e backend são servidos do mesmo domínio.
@@ -98,8 +111,13 @@ GET    /api/dashboard
 GET    /api/reports              ?type=payable|receivable|both&party_id=&status=&date_from=&date_to=
 ```
 
-Listagens (`parties`, `payables`, `receivables`, `reports`) são paginadas e aceitam filtros por status, `party_id` e período de vencimento.
+Listagens (`parties`, `payables`, `receivables`, `reports`) são paginadas e aceitam filtros por `status`, `party_id` e `due_date` (período de vencimento).
 
-## Diferenciais ainda não implementados
+## Diferenciais não implementados
 
-Por decisão de escopo, os seguintes diferenciais (opcionais, conforme o enunciado) ainda não foram implementados nesta etapa: testes automatizados (Pest), Events/Listeners, Jobs/Queue (sincronização diária de status vencido) e customização do `docker-compose` com worker de fila dedicado.
+- Repository/Service Pattern ou outra organização arquitetural justificável
+- Interface responsiva
+- Events/Listeners
+- Dashboard com gráficos
+- Controle de permissões/perfis
+- Testes automatizados
