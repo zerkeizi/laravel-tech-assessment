@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('issue_date');
             $table->date('due_date');
             $table->date('payment_date')->nullable();
-            $table->enum('status', ['pendente', 'pago', 'vencido', 'cancelado'])->default('pendente');
+            $table->enum('status', ['pending', 'paid', 'overdue', 'cancelled'])->default('pending');
             $table->timestamps();
 
             $table->index(['status', 'due_date']);

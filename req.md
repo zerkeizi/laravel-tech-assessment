@@ -78,21 +78,22 @@ O relatório deverá apresentar totalizadores das informações filtradas.
 
 Não são obrigatórios, mas serão considerados na avaliação:
 
+- Docker
+- Seeders e Factories
+- API REST
+- Documentação da API
+
 - Dashboard com gráficos
 - Paginação
 - Busca e filtros
 - Validação adequada dos dados
 - Controle de permissões/perfis
-- API REST
 - Testes automatizados
 - Jobs/Queues
 - Events/Listeners
-- Docker
-- Seeders e Factories
 - Repository/Service Pattern ou outra organização arquitetural justificável
 - Exportação de relatório para Excel/PDF
 - Auditoria/log das alterações
-- Documentação da API
 - Interface responsiva
 
 📦 Entrega

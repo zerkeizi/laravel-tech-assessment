@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('issue_date');
             $table->date('due_date');
             $table->date('receipt_date')->nullable();
-            $table->enum('status', ['pendente', 'recebido', 'vencido', 'cancelado'])->default('pendente');
+            $table->enum('status', ['pending', 'received', 'overdue', 'cancelled'])->default('pending');
             $table->timestamps();
 
             $table->index(['status', 'due_date']);

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\PayableStatus;
+use App\Enums\ReceivableStatus;
 use App\Models\Payable;
 use App\Models\Receivable;
 use Illuminate\Support\Carbon;
@@ -12,7 +14,7 @@ class FinancialLedgerService
     {
         $payable->update([
             'payment_date' => $paymentDate ?? now()->toDateString(),
-            'status' => 'pago',
+            'status' => PayableStatus::Paid,
         ]);
 
         return $payable;
@@ -22,7 +24,7 @@ class FinancialLedgerService
     {
         $receivable->update([
             'receipt_date' => $receiptDate ?? now()->toDateString(),
-            'status' => 'recebido',
+            'status' => ReceivableStatus::Received,
         ]);
 
         return $receivable;

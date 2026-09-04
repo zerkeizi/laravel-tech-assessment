@@ -69,10 +69,10 @@ onMounted(async () => {
             </select>
             <select v-model="filters.status" @change="load()">
                 <option value="">Todos os status</option>
-                <option value="pendente">Pendente</option>
-                <option value="pago">Pago</option>
-                <option value="vencido">Vencido</option>
-                <option value="cancelado">Cancelado</option>
+                <option value="pending">Pendente</option>
+                <option value="paid">Pago</option>
+                <option value="overdue">Vencido</option>
+                <option value="cancelled">Cancelado</option>
             </select>
             <input v-model="filters.due_from" type="date" @change="load()">
             <input v-model="filters.due_to" type="date" @change="load()">
@@ -86,7 +86,7 @@ onMounted(async () => {
             <template #cell-status="{ row }"><StatusBadge :status="row.status" /></template>
             <template #actions="{ row }">
                 <RouterLink :to="`/payables/${row.id}/edit`">Editar</RouterLink>
-                <button v-if="row.status === 'pendente'" type="button" @click="pay(row)">Pagar</button>
+                <button v-if="row.status === 'pending'" type="button" @click="pay(row)">Pagar</button>
                 <button type="button" @click="remove(row)">Excluir</button>
             </template>
         </DataTable>

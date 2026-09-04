@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\PayableStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -24,9 +25,9 @@ class UpdatePayableRequest extends FormRequest
             'amount' => ['required', 'numeric', 'min:0.01'],
             'issue_date' => ['required', 'date'],
             'due_date' => ['required', 'date', 'after_or_equal:issue_date'],
-            // 'pago' is only reachable via the dedicated /pay endpoint, and
-            // 'vencido' is always derived — never accepted here.
-            'status' => ['sometimes', Rule::in(['pendente', 'cancelado'])],
+            // 'paid' is only reachable via the dedicated /pay endpoint, and
+            // 'overdue' is always derived — never accepted here.
+            'status' => ['sometimes', Rule::enum(PayableStatus::class)->only([PayableStatus::Pending, PayableStatus::Cancelled])],
         ];
     }
 }

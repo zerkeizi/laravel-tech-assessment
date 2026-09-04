@@ -23,35 +23,35 @@ onMounted(async () => {
         <div v-else class="cards">
             <div class="card">
                 <span class="label">Total a Receber</span>
-                <span class="value">{{ formatCurrency(summary.total_a_receber) }}</span>
+                <span class="value">{{ formatCurrency(summary.total_receivable) }}</span>
             </div>
             <div class="card">
                 <span class="label">Total Recebido</span>
-                <span class="value">{{ formatCurrency(summary.total_recebido) }}</span>
+                <span class="value">{{ formatCurrency(summary.total_received) }}</span>
             </div>
             <div class="card">
                 <span class="label">Total Vencido a Receber</span>
-                <span class="value">{{ formatCurrency(summary.total_vencido_receber) }}</span>
+                <span class="value">{{ formatCurrency(summary.total_overdue_receivable) }}</span>
             </div>
             <div class="card">
                 <span class="label">Total a Pagar</span>
-                <span class="value">{{ formatCurrency(summary.total_a_pagar) }}</span>
+                <span class="value">{{ formatCurrency(summary.total_payable) }}</span>
             </div>
             <div class="card">
                 <span class="label">Total Pago</span>
-                <span class="value">{{ formatCurrency(summary.total_pago) }}</span>
+                <span class="value">{{ formatCurrency(summary.total_paid) }}</span>
             </div>
             <div class="card">
                 <span class="label">Total Vencido a Pagar</span>
-                <span class="value">{{ formatCurrency(summary.total_vencido_pagar) }}</span>
+                <span class="value">{{ formatCurrency(summary.total_overdue_payable) }}</span>
             </div>
             <div class="card highlight">
                 <span class="label">Saldo Previsto</span>
-                <span class="value">{{ formatCurrency(summary.saldo_previsto) }}</span>
+                <span class="value">{{ formatCurrency(summary.projected_balance) }}</span>
             </div>
             <div class="card highlight">
                 <span class="label">Saldo Realizado</span>
-                <span class="value">{{ formatCurrency(summary.saldo_realizado) }}</span>
+                <span class="value">{{ formatCurrency(summary.realized_balance) }}</span>
             </div>
         </div>
     </div>

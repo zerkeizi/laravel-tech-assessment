@@ -3,6 +3,7 @@ import { onMounted, reactive, ref } from 'vue';
 import reportsApi from '../api/reports';
 import partiesApi from '../api/parties';
 import StatusBadge from '../components/shared/StatusBadge.vue';
+import { statusLabel } from '../lib/labels';
 
 const parties = ref([]);
 const filters = reactive({ type: 'both', party_id: '', status: '', date_from: '', date_to: '' });
@@ -44,11 +45,11 @@ onMounted(async () => {
             </select>
             <select v-model="filters.status" @change="load()">
                 <option value="">Todos os status</option>
-                <option value="pendente">Pendente</option>
-                <option value="pago">Pago</option>
-                <option value="recebido">Recebido</option>
-                <option value="vencido">Vencido</option>
-                <option value="cancelado">Cancelado</option>
+                <option value="pending">Pendente</option>
+                <option value="paid">Pago</option>
+                <option value="received">Recebido</option>
+                <option value="overdue">Vencido</option>
+                <option value="cancelled">Cancelado</option>
             </select>
             <input v-model="filters.date_from" type="date" @change="load()">
             <input v-model="filters.date_to" type="date" @change="load()">
@@ -58,7 +59,7 @@ onMounted(async () => {
             <div class="card"><span class="label">Quantidade</span><span class="value">{{ totals.count }}</span></div>
             <div class="card"><span class="label">Valor Total</span><span class="value">{{ formatCurrency(totals.total_amount) }}</span></div>
             <div class="card" v-for="(amount, status) in totals.by_status" :key="status">
-                <span class="label">Total {{ status }}</span>
+                <span class="label">Total {{ statusLabel(status) }}</span>
                 <span class="value">{{ formatCurrency(amount) }}</span>
             </div>
         </div>
@@ -99,7 +100,7 @@ onMounted(async () => {
 .filters { display: flex; gap: 0.5rem; margin: 1rem 0; flex-wrap: wrap; }
 .totals { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
 .totals .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.75rem 1rem; }
-.totals .label { display: block; font-size: 0.75rem; color: #6b7280; text-transform: capitalize; }
+.totals .label { display: block; font-size: 0.75rem; color: #6b7280; }
 .totals .value { font-size: 1.1rem; font-weight: 600; }
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th, .data-table td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb; }

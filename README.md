@@ -1,58 +1,105 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema de Controle Financeiro
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema simplificado de Contas a Pagar e Contas a Receber, desenvolvido como desafio técnico. Backend em Laravel (API REST), frontend em Vue 3 (SPA), banco MySQL via Laravel Sail (Docker).
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Backend:** Laravel 13 (PHP 8.3+), Laravel Sanctum (autenticação de sessão para SPA), MySQL 8.4
+- **Frontend:** Vue 3 (Composition API) + Vue Router, Axios, montado via Vite em uma única view Blade
+- **Infra:** Laravel Sail (Docker Compose)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requisitos, como instalar e executar
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Pré-requisitos: 
+- Docker 29.6.2
+- PHP 8.3
+- Composer 2.10.3
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
+Executando:
 ```bash
-composer require laravel/boost --dev
+composer install
+cp .env.example .env
+php artisan key:generate
 
-php artisan boost:install
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan migrate --seed
+
+npm install
+npm run build
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+A aplicação fica disponível em `http://localhost` (porta 80, padrão do `compose.yaml` do Sail — ajuste `APP_PORT` no `.env` se a porta estiver ocupada).
 
-## Contributing
+Para desenvolvimento com hot-reload do frontend, use `npm run dev` em paralelo (Vite serve os assets na porta configurada em `VITE_PORT`, padrão 5173).
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Usuário de teste
 
-## Code of Conduct
+O seeder (`database/seeders/DatabaseSeeder.php`) cria um usuário de teste:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **E-mail:** `test@example.com`
+- **Senha:** `password`
 
-## Security Vulnerabilities
+## Estrutura do banco de dados
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+além das tabelas padrão do Laravel (`users`, `sessions`, `cache`, `jobs`), há três tabelas que representam as entidades principais:
 
-## License
+**`parties`** — cadastro de pessoas/empresas (alimentam cliente ou fornecedor, conforme o contexto de uso)
+| coluna | tipo | observação |
+|---|---|---|
+| `type` | enum(`individual`,`company`) | define se `document` é CPF (11 dígitos) ou CNPJ (14 dígitos) |
+| `name` | string | nome / razão social |
+| `document` | string, unique | CPF ou CNPJ |
+| `email` | string, nullable | |
+| `phone` | string, nullable | |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**`payables`** — contas a pagar
+| coluna | tipo | observação |
+|---|---|---|
+| `party_id` | FK → parties, `restrict on delete` | |
+| `description` | string | |
+| `amount` | decimal(10,2) | |
+| `issue_date` / `due_date` | date | |
+| `payment_date` | date, nullable | preenchida ao registrar o pagamento |
+| `status` | enum(`pendente`,`pago`,`vencido`,`cancelado`) | default `pendente` |
+
+**`receivables`** — contas a receber (mesma estrutura de `payables`, com `receipt_date` no lugar de `payment_date` e status `recebido` no lugar de `pago`)
+
+### Por que `parties` em vez de `clients`/`suppliers` separados?
+
+Uma única tabela de cadastro é usada tanto para clientes quanto para fornecedores — o papel (cliente vs. fornecedor) é implícito conforme o registro é referenciado por uma `receivable` ou por uma `payable`, e não um atributo fixo armazenado na pessoa/empresa. Essa abordagem evita cadastros duplicado de pessoa/empresa caso sejam usadas tanto em contas a pagar quanto a receber.
+
+### Por que o status "vencido" não é gravado no banco?
+
+`vencido` é sempre um **valor calculado**: um registro `pendente` é considerado vencido quando `due_date` já passou e não há data de pagamento/recebimento. Essa regra fica em `App\Models\Concerns\HasOverdueStatus` (compartilhada entre `Payable` e `Receivable`).
+
+<!--  Trade-off: É mais rápido de implementar quando não se tem uma arquitetura de Jobs pronta, mas exige um processamento maior por entidade a cada vez que precisamos exibi-las. Uma boa melhoria seria implementar um Job diário que atualize esse status para vencido, assim o dado já viria computado direto do banco -->
+
+### Por que a exclusão de uma `party` é bloqueada quando há lançamentos?
+
+A FK usa `restrictOnDelete()`, reforçada por uma checagem no model (`Party::booted()`) que retorna um erro 409 claro antes mesmo de chegar ao banco. Um sistema financeiro não deve apagar silenciosamente nem órfãos registros de pagamento/recebimento ao remover um cadastro.
+
+## Autenticação
+
+Sessão via Laravel Sanctum (SPA same-origin), não tokens Bearer: o frontend busca o cookie CSRF (`GET /sanctum/csrf-cookie`), autentica em `POST /login`, e as rotas `/api/*` ficam protegidas por `auth:sanctum`. Não há CORS a configurar, pois frontend e backend são servidos do mesmo domínio.
+
+## Rotas principais da API
+
+```
+POST   /login
+POST   /logout
+
+GET    /api/user
+GET|POST /api/parties            GET|PUT|DELETE /api/parties/{party}
+GET|POST /api/payables           GET|PUT|DELETE /api/payables/{payable}
+PATCH  /api/payables/{payable}/pay
+GET|POST /api/receivables        GET|PUT|DELETE /api/receivables/{receivable}
+PATCH  /api/receivables/{receivable}/receive
+GET    /api/dashboard
+GET    /api/reports              ?type=payable|receivable|both&party_id=&status=&date_from=&date_to=
+```
+
+Listagens (`parties`, `payables`, `receivables`, `reports`) são paginadas e aceitam filtros por status, `party_id` e período de vencimento.
+
+## Diferenciais ainda não implementados
+
+Por decisão de escopo, os seguintes diferenciais (opcionais, conforme o enunciado) ainda não foram implementados nesta etapa: testes automatizados (Pest), Events/Listeners, Jobs/Queue (sincronização diária de status vencido) e customização do `docker-compose` com worker de fila dedicado.

@@ -4,8 +4,8 @@ namespace App\Enums;
 
 enum PayableStatus: string
 {
-    case Pendente = 'pendente';
-    case Pago = 'pago';
-    case Vencido = 'vencido';
-    case Cancelado = 'cancelado';
+    case Pending = 'pending';
+    case Paid = 'paid';
+    case Overdue = 'overdue';
+    case Cancelled = 'cancelled';
 }

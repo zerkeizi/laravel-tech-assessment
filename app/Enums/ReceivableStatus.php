@@ -4,8 +4,8 @@ namespace App\Enums;
 
 enum ReceivableStatus: string
 {
-    case Pendente = 'pendente';
-    case Recebido = 'recebido';
-    case Vencido = 'vencido';
-    case Cancelado = 'cancelado';
+    case Pending = 'pending';
+    case Received = 'received';
+    case Overdue = 'overdue';
+    case Cancelled = 'cancelled';
 }

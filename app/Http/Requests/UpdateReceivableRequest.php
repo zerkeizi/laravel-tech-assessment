@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ReceivableStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -24,9 +25,9 @@ class UpdateReceivableRequest extends FormRequest
             'amount' => ['required', 'numeric', 'min:0.01'],
             'issue_date' => ['required', 'date'],
             'due_date' => ['required', 'date', 'after_or_equal:issue_date'],
-            // 'recebido' is only reachable via the dedicated /receive endpoint,
-            // and 'vencido' is always derived — never accepted here.
-            'status' => ['sometimes', Rule::in(['pendente', 'cancelado'])],
+            // 'received' is only reachable via the dedicated /receive endpoint,
+            // and 'overdue' is always derived — never accepted here.
+            'status' => ['sometimes', Rule::enum(ReceivableStatus::class)->only([ReceivableStatus::Pending, ReceivableStatus::Cancelled])],
         ];
     }
 }

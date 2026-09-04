@@ -3,6 +3,7 @@ import { onMounted, reactive, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import partiesApi from '../../api/parties';
 import DataTable from '../../components/shared/DataTable.vue';
+import { partyTypeLabel } from '../../lib/labels';
 
 const rows = ref([]);
 const meta = ref(null);
@@ -58,6 +59,7 @@ onMounted(() => load());
         <p v-if="error" class="error">{{ error }}</p>
 
         <DataTable :columns="columns" :rows="rows" :meta="meta" @page-change="load">
+            <template #cell-type="{ row }">{{ partyTypeLabel(row.type) }}</template>
             <template #actions="{ row }">
                 <RouterLink :to="`/parties/${row.id}/edit`">Editar</RouterLink>
                 <button type="button" @click="remove(row)">Excluir</button>
