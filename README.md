@@ -36,7 +36,7 @@ Para desenvolvimento com hot-reload do frontend, use `npm run dev` em paralelo (
 
 O seeder (`database/seeders/DatabaseSeeder.php`) cria um usuário de teste:
 
-- **E-mail:** `test@example.com`
+- **E-mail:** `admin@example.com`, `manager@example.com`
 - **Senha:** `password`
 
 ## Estrutura do banco de dados

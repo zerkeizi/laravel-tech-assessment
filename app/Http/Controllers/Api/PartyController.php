@@ -18,6 +18,7 @@ class PartyController extends Controller
                     ->orWhere('document', 'like', "%{$request->string('search')}%");
             }))
             ->when($request->filled('type'), fn ($query) => $query->where('type', $request->string('type')))
+            ->when(! $request->boolean('with_inactive'), fn ($query) => $query->where('active', true))
             ->orderBy('name')
             ->paginate($request->integer('per_page', 15));
     }
@@ -43,7 +44,7 @@ class PartyController extends Controller
 
     public function destroy(Party $party)
     {
-        $party->delete();
+        $party->deactivate();
 
         return response()->json(null, 204);
     }

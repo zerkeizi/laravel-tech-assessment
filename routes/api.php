@@ -5,10 +5,11 @@ use App\Http\Controllers\Api\PartyController;
 use App\Http\Controllers\Api\PayableController;
 use App\Http\Controllers\Api\ReceivableController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Middleware\SetDatabaseAuditUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', SetDatabaseAuditUser::class])->group(function () {
     Route::get('/user', fn (Request $request) => $request->user());
 
     Route::apiResource('parties', PartyController::class);
