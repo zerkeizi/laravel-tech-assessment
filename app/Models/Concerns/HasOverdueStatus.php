@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Shared by Payable and Receivable. Both models store a `status` column that
- * only ever holds 'pendente' until something explicitly settles or cancels
- * it — "vencido" (overdue) is never written by a controller, it's derived
- * here from due_date + the settlement date column. Any query that needs to
- * know which records are overdue (dashboard, reports) must use scopeOverdue()
- * below rather than filtering on a stored 'vencido' status value, since one
- * is never persisted until the (not-yet-built) daily sync job exists.
+ * only ever holds 'pending' until something explicitly settles or cancels
+ * it — "overdue" is never written by a controller, it's derived here from
+ * due_date + the settlement date column. Any query that needs to know which
+ * records are overdue (dashboard, reports) must use scopeOverdue() below
+ * rather than filtering on a stored 'overdue' status value, since one is
+ * never persisted until the (not-yet-built) daily sync job exists.
  */
 trait HasOverdueStatus
 {
@@ -28,7 +28,7 @@ trait HasOverdueStatus
 
     public function isOverdue(): bool
     {
-        return $this->status?->value === 'pendente'
+        return $this->status?->value === 'pending'
             && $this->due_date !== null
             && $this->due_date->isPast()
             && $this->settlementDate() === null;
@@ -36,12 +36,12 @@ trait HasOverdueStatus
 
     public function scopePending(Builder $query): void
     {
-        $query->where('status', 'pendente');
+        $query->where('status', 'pending');
     }
 
     public function scopeOverdue(Builder $query): void
     {
-        $query->where('status', 'pendente')
+        $query->where('status', 'pending')
             ->where('due_date', '<', now()->toDateString())
             ->whereNull($this->settlementDateColumn());
     }
