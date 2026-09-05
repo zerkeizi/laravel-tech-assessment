@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
  * Shared by Payable and Receivable. Both models store a `status` column that
  * only ever holds 'pending' until something explicitly settles or cancels
  * it — "overdue" is never written by a controller, it's derived here from
- * due_date + the settlement date column. The App\Jobs\MarkOverdueRecords job
+ * due_date + the settlement date column. The App\Jobs\setOverdueRecords.phps job
  * persists 'overdue' onto matching rows once a day (see routes/console.php),
  * but scopeOverdue() below remains the source of truth in between runs —
  * anything that must be accurate right up to the minute (the dashboard)
