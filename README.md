@@ -68,12 +68,6 @@ além das tabelas padrão do Laravel (`users`, `sessions`, `cache`, `jobs`), há
 
 Uma única tabela de cadastro é usada tanto para clientes quanto para fornecedores — o papel (cliente vs. fornecedor) é implícito conforme o registro é referenciado por uma `receivable` ou por uma `payable`, e não um atributo fixo armazenado na pessoa/empresa. Essa abordagem evita cadastros duplicado de pessoa/empresa caso sejam usadas tanto em contas a pagar quanto a receber.
 
-### Por que o status "vencido" não é gravado no banco?
-
-`vencido` é sempre um **valor calculado**: um registro `pendente` é considerado vencido quando `due_date` já passou e não há data de pagamento/recebimento. Essa regra fica em `App\Models\Concerns\HasOverdueStatus` (compartilhada entre `Payable` e `Receivable`).
-
-<!--  Trade-off: É mais rápido de implementar quando não se tem uma arquitetura de Jobs pronta, mas exige um processamento maior por entidade a cada vez que precisamos exibi-las. Uma boa melhoria seria implementar um Job diário que atualize esse status para vencido, assim o dado já viria computado direto do banco -->
-
 ### Por que a exclusão de uma `party` é bloqueada quando há lançamentos?
 
 A FK usa `restrictOnDelete()`, reforçada por uma checagem no model (`Party::booted()`) que retorna um erro 409 claro antes mesmo de chegar ao banco. Um sistema financeiro não deve apagar silenciosamente nem órfãos registros de pagamento/recebimento ao remover um cadastro.
@@ -90,6 +84,13 @@ Toda alteração (`UPDATE`) nas tabelas `parties`, `payables`, `receivables` e `
 | `users_log` | `subject_id` | não usa `user_id` para se referir a origem pra não repetir nome da coluna" |
 
 Cada tabela de _log tem `id`, `user_id` (quem fez a alteração), `data` (snapshot em JSON apenas de dados alterados) e timestamps. 
+
+
+### Job
+
+O status `vencido` as tabelas payables e receivables é alterado pela rotina diária `App\Jobs\setOverdueRecords`. Ela foi programada pra rodar uma vez ao dia, buscando registros que contemplem a condição (`due_date` < now() && `status` = "pending"), ou seja, data de vencimento anterior a hoje e com status pendente.
+
+<!-- Com o tempo, essa tabela pode ficar muito grande diminuindo a performance do Job. Nesse caso, uma lógica de busca por limite de registros a cada rotina poderia ser aplicado. -->
 
 ## Autenticação
 

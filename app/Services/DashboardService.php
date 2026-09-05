@@ -13,11 +13,11 @@ class DashboardService
     {
         $totalReceivable = (float) Receivable::pending()->sum('amount');
         $totalReceived = (float) Receivable::where('status', ReceivableStatus::Received)->sum('amount');
-        $totalOverdueReceivable = (float) Receivable::overdue()->sum('amount');
+        $totalOverdueReceivable = (float) Receivable::where('status', ReceivableStatus::Overdue)->sum('amount');
 
         $totalPayable = (float) Payable::pending()->sum('amount');
         $totalPaid = (float) Payable::where('status', PayableStatus::Paid)->sum('amount');
-        $totalOverduePayable = (float) Payable::overdue()->sum('amount');
+        $totalOverduePayable = (float) Payable::where('status', PayableStatus::Overdue)->sum('amount');
 
         return [
             'total_receivable' => $totalReceivable,
