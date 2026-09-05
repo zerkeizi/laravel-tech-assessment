@@ -14,7 +14,7 @@ use Illuminate\Foundation\Queue\Queueable;
  * passed while still pending. Runs daily so callers can filter/report on
  * `status` directly instead of recomputing scopeOverdue() every time.
  */
-class setOverdueRecords.phps implements ShouldQueue
+class MarkOverdueRecords implements ShouldQueue
 {
     use Queueable;
 
